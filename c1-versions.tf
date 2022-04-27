@@ -17,19 +17,6 @@ terraform {
 */
 provider "aws" {
   region  = var.aws_region
-  profile = "terra"
+  #profile = "terra"
 }
   # Adding Backend as S3 for Remote State Storage
-terraform {
-backend "s3" {
-    bucket = "terraform242828"
-    key    = "dev/terraform.tfstate"
-    region = "us-east-1" 
-    profile = "terra"
-
-    # Enable during Step-09     
-    # For State Locking
-    dynamodb_table = "terraform-dev-state-table"    
-    
-  }
-}
