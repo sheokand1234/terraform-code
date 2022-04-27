@@ -1,170 +1,181 @@
-# Terraform Remote State Storage & Locking
+# Terraform Cloud & Github Integration
 
 ## Step-01: Introduction
-- Understand Terraform Backends
-- Understand about Remote State Storage and its advantages
-- This state is stored by default in a local file named "terraform.tfstate", but it can also be stored remotely, which works better in a team environment.
-- Create AWS S3 bucket to store `terraform.tfstate` file and enable backend configurations in terraform settings block
-- Understand about **State Locking** and its advantages
-- Create DynamoDB Table and  implement State Locking by enabling the same in Terraform backend configuration
-
-## Step-02: Create S3 Bucket
-- Go to Services -> S3 -> Create Bucket
-- **Bucket name:** terraform
-- **Region:** US-East (N.Virginia)
-- **Bucket settings for Block Public Access:** leave to defaults
-- **Bucket Versioning:** Enable
-- Rest all leave to **defaults**
-- Click on **Create Bucket**
-- **Create Folder**
-  - **Folder Name:** dev
-  - Click on **Create Folder**
+- Create Github Repository on github.com
+- Clone Github Repository to local desktop
+- Copy & Check-In Terraform Configurations in to Github Repository
+- Create Terraform Cloud Account
+- Create Organization
+- Create Workspace by integrating with Github.com Git Repo we recently created
+- Learn about Workspace related Queue Plan, Runs, States, Variables and Settings
 
 
-## Step-03: Terraform Backend Configuration
-- **Reference Sub-folder:** terraform-manifests
-- [Terraform Backend as S3](https://www.terraform.io/docs/language/settings/backends/s3.html)
-- Add the below listed Terraform backend block in `Terrafrom Settings` block in `main.tf`
-```
-# Terraform Backend Block
-  backend "s3" {
-    bucket = "terraform"
-    key    = "dev/terraform.tfstate"
-    region = "us-east-1" 
-    profile="sandy1"   
-  }
-```
+## Step-02: Create new github Repository
+- **URL:** github.com
+- Click on **Create a new repository**
+- **Repository Name:** terraform-cloud-demo1
+- **Description:** Terraform Cloud Demo 
+- **Repo Type:** Public / Private
+- **Initialize this repository with:**
+- **CHECK** - Add a README file
+- **CHECK** - Add .gitignore 
+- **Select .gitignore Template:** Terraform
+- **CHECK** - Choose a license
+- **Select License:** Apache 2.0 License
+- Click on **Create repository**
 
-## Step-04: Test with Remote State Storage Backend
+## Step-03: Review .gitignore created for Terraform
+- Review .gitignore created for Terraform projects
+
+## Step-04: Clone Github Repository to Local Desktop
 ```t
-# Initialize Terraform
+# Clone Github Repo
+git clone https://github.com/<YOUR_GITHUB_ID>/<YOUR_REPO>.git
+
+```
+
+## Step-05: Copy files from terraform-manifests to local repo & Check-In Code
+- List of files to be copied
+  - apache-install.sh
+  - c1-versions.tf
+  - c2-variables.tf
+  - c3-security-groups.tf
+  - c4-ec2-instance.tf
+  - c5-outputs.tf
+  - c6-ami-datasource.tf
+- Source Location: Section-11-01 - Inside terraform-manifests folder
+- Destination Location: Newly cloned github repository folder in your local desktop `terraform-cloud-demo1`
+- Verify locally before commiting to GIT Repository
+```t
+# Terraform Init
 terraform init
 
-Observation: 
-Successfully configured the backend "s3"! Terraform will automatically
-use this backend unless the backend configuration changes.
-
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev/terraform.tfstate
-
-# Validate Terraform configuration files
+# Terraform Validate
 terraform validate
 
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev/terraform.tfstate
+# Terraform Plan
+terraform plan
+```
+- Check-In code to Remote Repository
+```t
+# GIT Status
+git status
 
-# Format Terraform configuration files
-terraform fmt
+# Git Local Commit
+git add .
+git commit -am "TF Files First Commit"
 
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev/terraform.tfstate
+# Push to Remote Repository
+git push
 
-# Review the terraform plan
-terraform plan 
-
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev/terraform.tfstate
-
-# Create Resources 
-terraform apply -auto-approve
-
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev/terraform.tfstate
-Observation: Finally at this point you should see the terraform.tfstate file in s3 bucket
-
-# Access Application
-http://<Public-DNS>
+# Verify the same on Remote Repository
+https://github.com/<YOUR_GITHUB_ID>/<YOUR_REPO>.git
 ```
 
-## Step-05: Bucket Versioning - Test
-- Update in `c2-variables.tf` 
+## Step-06: Sign-Up for Terraform Cloud - Free Account & Login
+- **SignUp URL:** https://app.terraform.io/signup/account
+- **Username:**
+- **Email:**
+- **P 
+- **Loassword:**gin URL:** https://app.terraform.io
+
+## Step-07: Create Organization 
+- **Organization Name:** hcta-demo1
+- **Email Address:** <your email address>
+- Click on **Create Organization**
+
+## Step-08: Create New Workspace
+- Get in to newly created Organization
+- Click on **New Workspace**
+- **Choose your workflow:** V
+  - Version Control Workflow
+- **Connect to VCS**
+  - **Connect to a version control provider:** github.com
+  - NEW WINDOW: **Authorize Terraform Cloud:** Click on **Authorize Terraform Cloud Button**
+  - NEW WINDOW: **Install Terraform Cloud**
+  - **Select radio button:** Only select repositories
+  - **Selected 1 Repository:** https://github.com/<YOUR_GITHUB_ID>/<YOUR_REPO>.git
+  - Click on **Install**
+- **Choose a Repository**
+  - https://github.com/<YOUR_GITHUB_ID>/<YOUR_REPO>.git
+- **Configure Settings**
+  - **Workspace Name:** terraform-cloud-demo1 (Whatever populated automically leave to defaults) 
+  - **Advanced Settings:** leave to defaults 
+- Click on **Create Workspace**  
+- You should see this message `Configuration uploaded successfully`
+
+
+## Step-09: Configure Variables
+- **Variable:** aws_region
+  - key: aws_region
+  - value: us-east-1
+- **Variable:** instance_type
+  - key: instance_type
+  - value: t3.micro
+
+## Step-10: Configre Environment Variables
+- [Setup AWS Access Keys for Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#environment-variables)
+- Configure AWS Access Key ID and Secret Access Key  
+- **Environment Variable:** AWS_ACCESS_KEY_ID
+  - Key: AWS_ACCESS_KEY_ID
+  - Value: XXXXXXXXXXXXXXXXXXXXXX
+- **Environment Variable:** AWS_SECRET_ACCESS_KEY
+  - Key: AWS_SECRET_ACCESS_KEY
+  - Value: YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+
+## Step-11: Click on Queue Plan
+- Go to Workspace -> Runs -> Queue Plan
+- Review the plan generated in **Full Screen**
+- **Add Comment:** First Run
+- Click on **Confirm & Apply**
+- **Add Comment:** First Run Approved
+- Click on **Confirm Plan**
+- Review Apply log output in **Full Screen**
+- **Add Comment:** Successfully Provisioned, Verified in AWS
+
+## Step-12: Review Terraform State
+- Go to Workspace -> States
+- Review the state file
+
+## Step-13: Change Number of Instance
+- Go to Local Desktop -> Local Repo -> c4-ec2-instance.tf -> Change count from 1 to 2
 ```t
-variable "instance_type" {
-  description = "EC2 Instance Type - Instance Sizing"
-  type = string
-  #default = "t2.micro"
-  default = "t2.small"
-}
-```
-- Execute Terraform Commands
-```t
-# Review the terraform plan
-terraform plan 
+# Change c4-ec2-instance.tf
+count = 2
 
-# Create Resources 
-terraform apply -auto-approve
+# GIT Status
+git status
 
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev/terraform.tfstate
-Observation: New version of terraform.tfstate file will be created
-```
+# Git Local Commit
+git add .
+git commit -am "Changed EC2 Instances from 1 to 2"
 
+# Push to Remote Repository
+git push
 
-## Step-06: Destroy Resources
-- Destroy Resources and Verify Bucket Versioning
-```t
-# Destroy Resources
-terraform destroy -auto-approve
-```
-## Step-07: Terraform State Locking Introduction
-- Understand about Terraform State Locking Advantages
-
-## Step-08: Add State Locking Feature using DynamoDB Table
-- Create Dynamo DB Table
-  - **Table Name:** terraform-dev-state-table
-  - **Partition key (Primary Key):** LockID (Type as String)
-  - **Table settings:** Use default settings (checked)
-  - Click on **Create**
-
-## Step-09: Update DynamoDB Table entry in backend in c1-versions.tf
-- Enable State Locking in `c1-versions.tf`
-```t
-  # Adding Backend as S3 for Remote State Storage with State Locking
-  backend "s3" {
-    bucket = "terraform"
-    key    = "dev2/terraform.tfstate"
-    region = "us-east-1"  
-
-    # For State Locking
-    dynamodb_table = "terraform-dev-state-table"
-  }
-```
-
-## Step-10: Execute Terraform Commands
-```t
-# Initialize Terraform 
-terraform init
-
-# Review the terraform plan
-terraform plan 
+# Verify Terraform Cloud
+Go to Workspace -> Runs 
 Observation: 
-1) Below messages displayed at start and end of command
-Acquiring state lock. This may take a few moments...
-Releasing state lock. This may take a few moments...
-2) Verify DynamoDB Table -> Items tab
-
-# Create Resources 
-terraform apply -auto-approve
-
-# Verify S3 Bucket for terraform.tfstate file
-bucket-name/dev2/terraform.tfstate
-Observation: New version of terraform.tfstate file will be created in dev2 folder
+1) New plan should be queued ->  Click on Current Plan and review logs in Full Screen
+2) Click on **Confirm and Apply**
+3) Add Comment: Approved for new EC2 Instance and Click on **Confirm Plan**
+4) Verify Apply Logs in Full Screen
+5) Review the update state in  Workspace -> States
+6) Verify if new EC2 Instance got created
 ```
 
-## Step-11: Destroy Resources
-- Destroy Resources and Verify Bucket Versioning
-```t
-# Destroy Resources
-terraform destroy -auto-approve
+## Step-14: Review Workpace Settings
+- Goto -> Workspace -> Settings
+  - General Settings
+  - Locking
+  - Notifications
+  - Run Triggers
+  - SSH Key
+  - Version Control
 
-# Clean-Up Files
-rm -rf .terraform*
-rm -rf terraform.tfstate*  # This step not needed as e are using remote state storage here
-```
+## Step-15: Destruction and Deletion
+- Goto -> Workspace -> Settings -> Destruction and Deletion
+- click on **Queue Destroy Plan** to delete the resources on cloud 
+- Goto -> Workspac -> Runs -> Click on **Confirm & Apply**
+- **Add Comment:** Approved for Deletion
 
-## References 
-- [AWS S3 Backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
-- [Terraform Backends](https://www.terraform.io/docs/language/settings/backends/index.html)
-- [Terraform State Storage](https://www.terraform.io/docs/language/state/backends.html)
-- [Terraform State Locking](https://www.terraform.io/docs/language/state/locking.html)
-- [Remote Backends - Enhanced](https://www.terraform.io/docs/language/settings/backends/remote.html)
