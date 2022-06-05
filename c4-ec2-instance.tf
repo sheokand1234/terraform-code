@@ -5,7 +5,7 @@ resource "aws_instance" "my-ec2-vm" {
   #instance_type = "t2.micro"
   key_name      = "terraform-key"
 	user_data = file("apache-install.sh")  
-  vpc_security_group_ids = [aws_security_group.vpc-ssh.id, aws_security_group.vpc-web.id]
+  vpc_security_group_ids = [aws_security_group.vpc-ssh1.id, aws_security_group.vpc-web1.id]
   tags = {
     "Name" = "amz-linux-vm"
     #"demotag" = "refreshtest"  # Enable during Step-04-05
